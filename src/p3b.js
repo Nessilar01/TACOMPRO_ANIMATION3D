@@ -395,26 +395,24 @@ function mkTouch(){
 }
 function mkBalls(){
   const c=new Clip({view:V_MAN,board:true});
+  const GX=120,GY=742;                                   /* a ball that is already inside the RED goalpost */
   c.add('man','manual',{x:300,y:538,r:90});
-  c.add('ball1','ball',{x:B1[0],y:B1[1],c:'y'});
+  c.add('ball1','ball',{x:GX,y:GY,c:'y'});
   c.add('ghost','shape',{x:B1[0],y:B1[1],w:30,h:30,shape:'circle',fill:'rgba(255,255,255,.12)',stroke:'#fff',sw:3,dash:'6 4',o:0,pulse:true});
+  c.add('goalR','shape',{x:IW-GOAL[0]-4,y:GOAL[1],w:100,h:345,shape:'rect',fill:'rgba(217,58,48,.22)',stroke:'#ff7b72',sw:3,dash:'10 6',o:0,pulse:true});
   lbl(c,'lOrig','Original position',200,470,{tone:'dark',tx:B1[0]-8,ty:B1[1]-12});
-  lbl(c,'lIn','Ball in the goalpost',470,640,{tone:'info',tx:GOAL[0]-30,ty:GOAL[1]-12});
+  lbl(c,'lIn','A ball is already in the red goalpost',230,640,{tone:'warn',tx:GX,ty:GY-6});
   c.chip('clock',0,'MANUAL','blue');
-  const e0=narr(c,0,'A ball launched into the goalpost scores. Taking it back out costs points.');
-  c.to('man','ext',1,1.7,.45);c.to('man','ext',1.8,2.5,.15);
-  const tm=c.move('man',[[300,740]],2.6,220,{turn:.2,face:90});
-  c.carry('ball1','man',1.8,tm,0,0,{arm:true});
-  const tl=tm+.2;shoot(c,'ball1',tl,GOAL[0]-30,GOAL[1]-12);
-  c.score(tl+.8,'yellowBall');c.vis('lIn',tl+.8,tl+4);
-  const e1=narr(c,Math.max(e0,tl),'The yellow ball lands in the goalpost: +2.5.',tl+2);
-  const tg=c.move('man',[[556,742]],e1,200,{turn:.2,face:90});
+  c.vis('goalR',.2,5);c.vis('lIn',.2,6);
+  const e0=narr(c,0,'A ball is already inside the red goalpost. A red robot that takes it back out loses points.',5);
+  /* the red Manual robot drives to its own goal, reaches in and lifts the ball out */
+  const tg=c.move('man',[[300,742],[200,742]],e0,220,{turn:.2,face:-90});
   c.to('man','ext',tg,tg+.7,.5);
   c.ban(tg+.8,tg+2.6,'BALL TAKEN FROM GOAL','warn');c.score(tg+.9,'pickFromGoal');
   c.to('man','ext',tg+.8,tg+1.5,.15);
-  const tb=c.move('man',[[430,700]],tg+1.6,200,{turn:.2});
+  const tb=c.move('man',[[300,640]],tg+1.6,200,{turn:.2});
   c.carry('ball1','man',tg+.8,tb,0,0,{arm:true});
-  const e2=narr(c,e1,'Picking a ball back up out of the goal costs 5 points per ball.',tb);
+  const e2=narr(c,e0,'Picking a ball back up out of the goal costs 5 points per ball.',tb);
   c.vis('ghost',tb,tb+6);c.vis('lOrig',tb,tb+6);
   c.ban(tb+.2,tb+2.4,'NOT RETURNED','warn');c.score(tb+.3,'notReturned');
   c.dur=narr(c,Math.max(e2,tb),'After the game every ball must be back at its original position, or the team loses 5 points.',tb+6)+.8;return c;

@@ -28,6 +28,7 @@ function mkArenaAuto(){
     {t:'Entrance 3 (C)',x:110,y:410,tone:'dark',tx:START_OF('C')[0],ty:START_OF('C')[1]+22,zone:ez('C'),cap:'Entrance 3 (C) is the bottom-left cell.'},
     {t:'One draw per round',x:520,y:410,tone:'yel',cap:'The Auto robot starts from the entrance that was drawn. The letters A, B, C name entrances, not alliances.'},
     {t:'Parking Zone',x:480,y:230,tone:'dark',tx:PARK[0]+20,ty:PARK[1],zone:{x:PARK[0],y:PARK[1],w:74,h:74},cap:'Deliver the cube to the purple Parking Zone in the bottom-right cell of your side.'},
+    {t:'Black tape',x:480,y:200,tone:'dark',tx:PARK[0]+36,ty:PARK[1]-36,cap:'A strip of black tape lies across the entrance of each Parking Zone, the only open side of the cell.'},
     {t:'Every cell: 20 × 20 cm',x:260,y:560,tone:'yel',tx:cx(0),ty:cy(2),cap:'Each block of the maze is 20 by 20 centimetres.',after:(c,ts)=>{c.to('dim','o',ts+.4,ts+.7,1)}},
     {t:'Code must handle both sides',x:520,y:560,tone:'warn',cap:'Your program has to handle both sides of the arena, because you might need to play A or B.'}
   ];
@@ -58,7 +59,7 @@ function mkComponents(){
   const c=new Clip({view:V_FULL});
   c.add('dim5','dim',{x:690,y:561,x2:690,y2:574,text:'5 cm',o:0});
   const it=[
-    {t:'Objective Block (Auto)\n7 × 7 × 7 cm cube',x:480,y:200,tone:'yel',tx:PARK[0]+10,ty:PARK[1],zone:{x:PARK[0],y:PARK[1],w:74,h:74},cap:'The Auto robot’s objective block is a yellow cube, 7 centimetres on each side. Deliver it to the Parking Zone.'},
+    {t:'Objective Block (Auto)\n7 × 7 × 7 cm cube',x:480,y:200,tone:'yel',tx:START[0],ty:START[1],cap:'The Auto robot starts at its start point with the objective block on top of it: a yellow cube, 7 centimetres on each side. It delivers the block to the Parking Zone.',after:(c,ts,gap)=>{c.hide('rob',ts+gap,.4);c.hide('objCube',ts+gap,.4)}},
     {t:'Initial position marker\n(Manual) about 320 × 320 mm',x:310,y:540,tone:'dark',tx:HOME[0],ty:HOME[1],zone:{x:HOME[0],y:HOME[1],w:96,h:96},cap:'The Initial position marker is where the Manual robot starts, and where it can retract to.'},
     {t:'Cube Base platform\n10 × 10 cm top',x:430,y:660,tone:'dark',tx:PLAT[0],ty:PLAT[1]+14,zone:{x:PLATS[0][0],y:PLATS[0][1],w:46,h:46},zone2:{x:PLATS[1][0],y:PLATS[1][1],w:46,h:46},cap:'The Cube Base platform is where the Manual robot places the yellow cube to score. It is mounted beside the goalpost, 5 centimetres from the frame.',after:(c,ts,g)=>{c.to('dim5','o',ts+.6,ts+.9,1);c.to('dim5','o',ts+g-.3,ts+g,0)}},
     {t:'Goalpost (Manual)\n1000 × 400 mm',x:450,y:850,tone:'info',tx:GOAL[0]-10,ty:GOAL[1]+60,zone:{x:GOAL[0]+4,y:GOAL[1],w:100,h:345},cap:'Goalpost: to score with a ball, shoot it in here.'},
@@ -68,6 +69,7 @@ function mkComponents(){
     {t:'Central area\nballs about 170 mm apart',x:200,y:1010,tone:'dark',tx:372,ty:998,cap:'The central area is the strip down the middle. The rulebook picture puts the balls about 170 millimetres apart.'}
   ];
   addPlats(c);
+  c.add('rob','auto',{x:START[0],y:START[1],r:H0});c.add('objCube','cube',{x:START[0],y:START[1]});c.carry('objCube','rob',0,999,0,0,{rot:true});   /* the Auto robot waits at its start point with the objective block on top */
   callouts(c,it,.4);return c;
 }
 
@@ -168,14 +170,14 @@ function cards(rows){
   c.dur=t+.6;return c;
 }
 const CARDS={
- 'doc-schedule':()=>cards([['11 Nov · 23:59','date','Code must be submitted through the team leader’s public GitHub repository.'],['12 Nov 2026','date','Competition day: ranking match, random alliance and final match.'],['15 Nov','date','Deadline for the report and the SUPER COOL video.']]),
+ 'doc-schedule':()=>cards([['19 Nov 2026','date','Competition day: ranking match, random alliance and final match.'],['21 Nov 2026','date','Deadline for the report and the SUPER COOL video.']]),
  'doc-report':()=>cards([['Code','lim','Your program with a flowchart and an explanation of how it works.'],['5 topics','lim','The program must use function, structure, loop, array and pointer.'],['Drawings','lim','All drawings and designs for every part.'],['Physics','lim','Theory and a sample engineering calculation for both robots.'],['Copying','bad','If the TAs find the same code as another team, your score and the other team’s score are divided by the number of copies.']]),
  'doc-video':()=>cards([['Format','lim','One minute, portrait, 9:16.'],['Content','ok','Shows both your Manual and your Autonomous robot.'],['AI + sound','ok','Made with the help of AI tools, and it must have sound.'],['Team','ok','Must include a picture or video of the whole team doing the project.'],['Style','lim','The rulebook says “Anything that SUPER COOL”, so be creative.']]),
  'doc-code':()=>cards([['Repository','lim','The team leader’s GitHub, public, so the TAs can open it at any time.'],['Structure','lim','competition/auto/auto.ino and competition/manual/your_manual_code.mblock.'],['Deadline','date','Before 11 November, 23:59.'],['Auto code','ok','Must use function, structure, loop, array and pointer. Hard-coding the solution is allowed.'],['Manual code','bad','Write all logic in mBlock Python only. Block code is forbidden.'],['In the report','lim','A flowchart and a detailed explanation of your code.']]),
  'robot-auto':()=>cards([['Job','ok','Navigate the maze to the goal, then grab an object and deliver it to the target zone.'],['Size','lim','At most 16 × 16 cm, any height.'],['Parts','ok','Anything from the given Autonomous Robot Set.'],['Sensors','lim','At most 5, of any kind.'],['Motors','lim','At most 2 Yellow DC motors, and only ones the TAs provide.'],['Build','ok','You may build your own mechanical parts.'],['Kits','bad','You may not buy a complete Autonomous Robot kit.']]),
- 'robot-manual':()=>cards([['Job','ok','Operated by remote control.'],['Size','lim','At most 32 × 32 × 45 cm when fully extended. During the Manual phase it may extend itself beyond that boundary.'],['Parts','ok','Only parts from the given Manual Robot set.'],['Electronics','bad','Any external electronics are forbidden on the Manual robot.'],['Motors','lim','At most 1 additional DC motor.'],['Kits','bad','You may not buy a complete Manual Robot kit.']]),
+ 'robot-manual':()=>cards([['Job','ok','Operated by remote control.'],['Size','lim','At most 32 × 32 × 45 cm when fully retracted. During the Manual phase it may extend itself beyond that boundary.'],['Parts','ok','Only parts from the given Manual Robot set.'],['Electronics','bad','Any external electronics are forbidden on the Manual robot.'],['Motors','lim','At most 1 additional DC motor.'],['Kits','bad','You may not buy a complete Manual Robot kit.']]),
  'robot-damage':()=>cards([['No damage','bad','Harming any given component is forbidden: −5 points per damaged part.'],['Examples','bad','Glue, sticky tape, or cutting and drilling that damages the given parts.'],['Return','ok','All mechanical parts and everything in the Makebox kit go back in perfect condition after the competition.'],['If damaged or lost','bad','−5 points per part, and the team must buy back what it damaged or lost.']]),
- 'robot-inspect':()=>cards([['Before every match','ok','Each robot must fit inside its acrylic sizing box.'],['Auto box','lim','16 × 16 × ∞ cm.'],['Manual box','lim','32 × 32 × 45 cm, with the robot fully extended.'],['Does not fit','bad','The team must fix it and be re-checked before the match starts.']]),
+ 'robot-inspect':()=>cards([['Before every match','ok','Each robot must fit inside its acrylic sizing box.'],['Auto box','lim','16 × 16 × ∞ cm.'],['Manual box','lim','32 × 32 × 45 cm, with the robot fully retracted.'],['Does not fit','bad','The team must fix it and be re-checked before the match starts.']]),
  'scoring':()=>{
    const order=['parkNoCube','parkCube','cubeBase','pin','flag','greenBall','yellowBall','pickFromGoal','notReturned','earlyMove','noStop','damage'];
    const rows=order.map(k=>{const s=SCORE[k];return[(s.pts>0?'+':s.pts<0?'−':'')+Math.abs(s.pts),s.pts<0?'bad':'ok',s.label]});
