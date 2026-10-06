@@ -16,13 +16,13 @@ function mkAutoRun(){
   c.add('cube','cube',{x:START[0],y:START[1]});
   parkZone(c,0,0);
   const by=BANDY(),dy=by<0?-18:20;
-  lbl(c,'lEnt',ELBL+' (drawn)',170,by,{tone:'dark',tx:START[0],ty:START[1]+dy});
+  lbl(c,'lEnt',ELBL,170,by,{tone:'dark',tx:START[0],ty:START[1]+dy});
   lbl(c,'lCube','yellow cube',400,by,{tone:'yel',tx:START[0]+12,ty:START[1]-8});
   lbl(c,'lHold','Hold the cube. Never set it on the floor',500,by<0?140:300,{tone:'warn'});
   lbl(c,'lRef','Referee: “Auto robot parked”',210,by,{tone:'dark'});
   c.chip('clock',0,'AUTO 90 s','red');
   c.vis('lEnt',.4,5.4);c.vis('lCube',2,5.4);
-  narr(c,0,'In a ranking match the team plays alone. The Auto robot starts at its drawn entrance, holding the yellow cube.',7.2);
+  narr(c,0,'In a ranking match the team plays alone. The Auto robot starts at Entrance 1 (A), holding the yellow cube.',7.2);
   c.ban(6.2,7.6,'START!','ok');
   const t0=7.4,tEnd=c.move('rob',ROUTE.slice(1),t0,175);
   c.carry('cube','rob',0,999,0,-31,{rot:true});
@@ -64,7 +64,7 @@ function mkRelaunch(attempts){
       c.carry(cb,'rob',tAtt,tEnd,0,-31,{rot:true});
       c.to(cb,'s',tEnd,tEnd+.15,1.6);c.to(cb,'s',tEnd+.15,tEnd+.45,1);
       c.ban(tEnd,tEnd+1.9,'CUBE DROPPED!','warn');
-      const tt=narr(c,tEnd,k===0?'Cube dropped before the Parking Zone. The team may relaunch from the drawn entrance with a new cube.':'Dropped again. The team may relaunch as many times as it likes while the 90 seconds last.');
+      const tt=narr(c,tEnd,k===0?'Cube dropped before the Parking Zone. The team may relaunch from Entrance 1 (A) with a new cube.':'Dropped again. The team may relaunch as many times as it likes while the 90 seconds last.');
       const cp=[c.pos[cb].x,c.pos[cb].y],rp=[c.pos.rob.x,c.pos.rob.y];
       lMan.push([tEnd+.5,0]);
       const rEnd=c.move('ref',[cp],tt,150,{turn:0});

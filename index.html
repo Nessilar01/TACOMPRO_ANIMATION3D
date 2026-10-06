@@ -40,6 +40,7 @@ h1{font:700 clamp(20px,3.2vw,30px)/1.15 var(--f-display);margin:0;text-wrap:bala
 .lblx{font:500 12px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:8px}
 .seg{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
 .seg button{padding:6px 12px;min-height:36px}
+.seg.off{opacity:.45}.seg.off button{pointer-events:none}
 .grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px;align-items:start}
 @media (max-width:920px){.grid{grid-template-columns:minmax(0,1fr)}}
 .left{min-width:0;display:flex;flex-direction:column;gap:10px}
@@ -85,7 +86,7 @@ h1{font:700 clamp(20px,3.2vw,30px)/1.15 var(--f-display);margin:0;text-wrap:bala
   </header>
   <div class="bar">
     <div class="tabs" role="tablist" aria-label="Match" id="tabs"></div>
-    <div class="seg" id="ents" role="group" aria-label="Maze entrance"><span class="lblx">Maze entrance</span></div>
+    <div class="seg" id="ents" role="group" aria-label="Maze entrance"><span class="lblx">Final match entrance (drawn)</span></div>
   </div>
   <div class="grid">
     <section class="left" aria-label="3D stage">
@@ -136,6 +137,8 @@ const heading=(a,b)=>Math.atan2(b[0]-a[0],-(b[1]-a[1]))*180/Math.PI;
 function routeFor(k){return bfs(ENTS[k].cell,[4,4]).map(([c,r])=>[cx(c),cy(r)])}
 function setEnt(k){ENT=k;ROUTE=routeFor(k);START=ROUTE[0];PARK=ROUTE[ROUTE.length-1];H0=heading(ROUTE[0],ROUTE[1]);ELBL=`Entrance ${ENTS[k].n} (${k})`}
 setEnt('A');
+let FINAL_ENT='B';   /* ranking matches always start at Entrance 1 (A); only the final match uses a random draw, FINAL_ENT is the drawn result */
+const entFor=id=>id==='final'?FINAL_ENT:'A';
 
 const HOME=[82,457];
 /* the red alliance owns the LEFT half (goalpost x~84), the blue alliance the RIGHT half (goalpost x~662). Robots never cross the central ball platform (x~373). A robot places its cube on ITS OWN side's platform.
@@ -231,13 +234,13 @@ function mkAutoRun(){
   c.add('cube','cube',{x:START[0],y:START[1]});
   parkZone(c,0,0);
   const by=BANDY(),dy=by<0?-18:20;
-  lbl(c,'lEnt',ELBL+' (drawn)',170,by,{tone:'dark',tx:START[0],ty:START[1]+dy});
+  lbl(c,'lEnt',ELBL,170,by,{tone:'dark',tx:START[0],ty:START[1]+dy});
   lbl(c,'lCube','yellow cube',400,by,{tone:'yel',tx:START[0]+12,ty:START[1]-8});
   lbl(c,'lHold','Hold the cube. Never set it on the floor',500,by<0?140:300,{tone:'warn'});
   lbl(c,'lRef','Referee: “Auto robot parked”',210,by,{tone:'dark'});
   c.chip('clock',0,'AUTO 90 s','red');
   c.vis('lEnt',.4,5.4);c.vis('lCube',2,5.4);
-  narr(c,0,'In a ranking match the team plays alone. The Auto robot starts at its drawn entrance, holding the yellow cube.',7.2);
+  narr(c,0,'In a ranking match the team plays alone. The Auto robot starts at Entrance 1 (A), holding the yellow cube.',7.2);
   c.ban(6.2,7.6,'START!','ok');
   const t0=7.4,tEnd=c.move('rob',ROUTE.slice(1),t0,175);
   c.carry('cube','rob',0,999,0,-31,{rot:true});
@@ -279,7 +282,7 @@ function mkRelaunch(attempts){
       c.carry(cb,'rob',tAtt,tEnd,0,-31,{rot:true});
       c.to(cb,'s',tEnd,tEnd+.15,1.6);c.to(cb,'s',tEnd+.15,tEnd+.45,1);
       c.ban(tEnd,tEnd+1.9,'CUBE DROPPED!','warn');
-      const tt=narr(c,tEnd,k===0?'Cube dropped before the Parking Zone. The team may relaunch from the drawn entrance with a new cube.':'Dropped again. The team may relaunch as many times as it likes while the 90 seconds last.');
+      const tt=narr(c,tEnd,k===0?'Cube dropped before the Parking Zone. The team may relaunch from Entrance 1 (A) with a new cube.':'Dropped again. The team may relaunch as many times as it likes while the 90 seconds last.');
       const cp=[c.pos[cb].x,c.pos[cb].y],rp=[c.pos.rob.x,c.pos.rob.y];
       lMan.push([tEnd+.5,0]);
       const rEnd=c.move('ref',[cp],tt,150,{turn:0});
@@ -664,7 +667,7 @@ function mkFull(drops){
   c.add('person','person',{x:12,y:300,o:0});
   addPlats(c);manualProps(c);parkZone(c,0,0);
   const by=BANDY();
-  lbl(c,'lEnt',ELBL+' (drawn)',170,by,{tone:'dark',tx:START[0],ty:START[1]+(by<0?-18:20)});
+  lbl(c,'lEnt',ELBL,170,by,{tone:'dark',tx:START[0],ty:START[1]+(by<0?-18:20)});
   lbl(c,'lPlat','Cube Base platform (red side)',250,640,{tone:'dark',tx:PLAT[0]+22,ty:PLAT[1]+14});
   lbl(c,'lMan','Manual robot stays still',200,440,{tone:'warn',tx:HOME[0]+30,ty:HOME[1]});
   let ck=90;
@@ -672,7 +675,7 @@ function mkFull(drops){
   c.chip('mode',0,'RANKING MATCH','dark');
   c.chip('clock',0,'AUTO 90 s','red');
   c.ban(.4,2.4,'INSPECTION PASSED','ok');c.vis('lEnt',.6,6.5);
-  let t=narr(c,0,'A full ranking match. Both robots pass inspection, and the Auto robot sits at its drawn entrance holding the cube.',6.4);
+  let t=narr(c,0,'A full ranking match. Both robots pass inspection, and the Auto robot sits at Entrance 1 (A) holding the cube.',6.4);
   c.ban(t,t+1.4,'START!','ok');t+=.6;
   let cubeId='cube',cf0=0,tPark;
   if(!drops){
@@ -687,7 +690,7 @@ function mkFull(drops){
     narr(c,t,'Auto phase: carry the cube through the maze…',tD);
     c.ban(tD,tD+1.9,'CUBE DROPPED!','warn');
     const cp=[c.pos.cube.x,c.pos.cube.y],rp=[c.pos.rob.x,c.pos.rob.y];
-    const t1=narr(c,tD,'The cube drops before the Parking Zone, so the team relaunches at the same drawn entrance.');
+    const t1=narr(c,tD,'The cube drops before the Parking Zone, so the team relaunches at the same entrance, Entrance 1 (A).');
     c.vis('lMan',tD+.5,t1+5);
     const rEnd=c.move('ref',[cp],t1,150,{turn:0});c.hide('cube',rEnd,.25);
     const t2=narr(c,t1,'The referee removes the cube, the team tells the referee, and a teammate carries the robot back.',rEnd+1);
@@ -850,7 +853,7 @@ function mkArenaAuto(){
     {t:'Entrance 1 (A)',x:110,y:-16,tone:'dark',tx:START_OF('A')[0],ty:START_OF('A')[1]-20,zone:ez('A'),cap:'Each side has three entrances. Entrance 1 (A) is the top-left cell.'},
     {t:'Entrance 2 (B)',x:338,y:-16,tone:'dark',tx:START_OF('B')[0],ty:START_OF('B')[1]-20,zone:ez('B'),cap:'Entrance 2 (B) is the top cell beside the centre line.'},
     {t:'Entrance 3 (C)',x:110,y:410,tone:'dark',tx:START_OF('C')[0],ty:START_OF('C')[1]+22,zone:ez('C'),cap:'Entrance 3 (C) is the bottom-left cell.'},
-    {t:'One draw per round',x:520,y:410,tone:'yel',cap:'The Auto robot starts from the entrance that was drawn. The letters A, B, C name entrances, not alliances.'},
+    {t:'Draw: final match only',x:520,y:410,tone:'yel',cap:'In ranking matches the Auto robot always starts from Entrance 1 (A). Only the final match uses a random draw. The letters A, B, C name entrances, not alliances.'},
     {t:'Parking Zone',x:480,y:230,tone:'dark',tx:PARK[0]+20,ty:PARK[1],zone:{x:PARK[0],y:PARK[1],w:74,h:74},cap:'Deliver the cube to the purple Parking Zone in the bottom-right cell of your side.'},
     {t:'Black tape',x:480,y:200,tone:'dark',tx:PARK[0]+36,ty:PARK[1]-36,cap:'A strip of black tape lies across the entrance of each Parking Zone, the only open side of the cell.'},
     {t:'Every cell: 20 × 20 cm',x:260,y:560,tone:'yel',tx:cx(0),ty:cy(2),cap:'Each block of the maze is 20 by 20 centimetres.',after:(c,ts)=>{c.to('dim','o',ts+.4,ts+.7,1)}},
@@ -900,25 +903,19 @@ function mkComponents(){
 /* ---------- start entrance draw ---------- */
 function mkDraw(){
   const c=new Clip({view:V_AUTO});
-  const keys=['A','B','C'];
+  const keys=['A','B','C'],F=FINAL_ENT;
   keys.forEach(k=>{const [x,y]=START_OF(k);c.add('h'+k,'shape',{x,y,w:70,h:70,shape:'rect',fill:'rgba(255,210,26,.30)',stroke:'#ffd21a',sw:6,o:0})});
   const lp={A:[110,-16],B:[338,-16],C:[110,410]};
   keys.forEach(k=>{const [x,y]=START_OF(k);lbl(c,'l'+k,`Entrance ${ENTS[k].n} (${k})`,lp[k][0],lp[k][1],{tone:'dark',tx:x,ty:y+(lp[k][1]<0?-20:22)})});
   const R={};keys.forEach(k=>R[k]=routeFor(k));
   c.add('rob','auto',{x:R.A[0][0],y:R.A[0][1],r:heading(R.A[0],R.A[1]),o:0});
-  const shuffle=(t0,seq,note)=>{let t=t0,d=.16;seq.forEach((k,i)=>{c.jump('h'+k,'o',t,1);if(i<seq.length-1)c.jump('h'+k,'o',t+d,0);t+=d;d=Math.min(.55,d*1.18)});return t};
+  const shuffle=(t0,seq)=>{let t=t0,d=.16;seq.forEach((k,i)=>{c.jump('h'+k,'o',t,1);if(i<seq.length-1)c.jump('h'+k,'o',t+d,0);t+=d;d=Math.min(.55,d*1.18)});return t};
   const label=(k)=>`Entrance ${ENTS[k].n} (${k})`;
-  /* part 1: the draw before the ranking round */
-  let t=narr(c,0,'Before the competition starts, one random draw picks the start entrance for the whole ranking round.');
-  c.show('lA',.5);c.show('lB',1.2);c.show('lC',1.9);
-  c.chip('draw',t,'RANKING DRAW','dark');c.ban(t,t+3.4,'DRAWING…','info');
-  const tF=shuffle(t+.3,['B','C','A','C','B','A','C','B','C','A']);
-  c.ban(tF,tF+2.4,'DRAWN: '+label('A').toUpperCase(),'ok');c.chip('draw',tF,'DRAWN: '+label('A'),'ok');
-  narr(c,t,'Drawing now. This single draw covers the whole ranking round.',tF);
-  let t1=narr(c,tF,'The result is Entrance 1 (A).',tF+2.6);
-  /* part 2: every team uses it for every ranking match */
-  const t2=narr(c,t1,'Every team now uses that same entrance in all of its ranking matches, until the ranking round is over.');
-  const teams=['Team 1','Team 2','Team 3'];let tc=t1+.2;
+  const teams=['Team 1','Team 2','Team 3'];
+  /* part 1: ranking matches have no draw, they always start at Entrance 1 (A) */
+  let t=narr(c,0,'In the ranking round there is no draw. Every team always starts from Entrance 1 (A).');
+  c.show('lA',.4);c.show('hA',.4);c.chip('draw',.2,'RANKING: ENTRANCE 1 (A)','ok');
+  let tc=t+.2;
   teams.forEach((nm,i)=>{
     const rt=R.A,h=heading(rt[0],rt[1]);
     c.chip('match',tc,`${nm} · ranking match`,'blue');
@@ -926,27 +923,27 @@ function mkDraw(){
     const te=c.move('rob',rt.slice(1,6),tc+.5,240,{turn:0});c.hide('rob',te+.15,.3);
     tc=Math.max(te+.8,tc+2.6);
   });
-  if(tc>t2)c.cap(t2,tc,'Same entrance for every team, in every ranking match.');
-  /* part 3: a new draw for the final */
-  const tf=Math.max(tc,t2)+.3;
-  c.chip('match',tf,'','blue');
-  c.hide('hA',tf,.3);
+  c.cap(t,tc,'Same entrance for every team, in every ranking match.');
+  /* part 2: only the final match is drawn */
+  const tf=tc+.3;
+  c.chip('match',tf,'','blue');c.hide('hA',tf,.3);c.hide('lA',tf,.3);c.show('lA',tf+.6);c.show('lB',tf+1.2);c.show('lC',tf+1.8);
   c.chip('draw',tf,'FINAL DRAW','dark');c.ban(tf,tf+3.4,'DRAWING…','info');
-  const t3=narr(c,tf,'When the final match comes, the draw is made again.');
-  const tG=shuffle(tf+.4,['A','C','B','A','C','A','B','C','A','B']);
-  c.ban(tG,tG+2.4,'DRAWN: '+label('B').toUpperCase(),'ok');c.chip('draw',tG,'DRAWN: '+label('B'),'ok');
-  const t4=narr(c,Math.max(t3,tG),'This time the result is Entrance 2 (B).',tG+2.6);
-  const t5=narr(c,t4,'Every team starts all of its final matches from Entrance 2 (B), until the final is over.');
+  const t3=narr(c,tf,'Only the final match uses a random draw. One draw picks the start entrance for the whole final.');
+  const seq=['B','C','A','C','B','A','C','B','C','A'].concat([F]);
+  const tG=shuffle(tf+.6,seq);
+  c.ban(tG,tG+2.4,'DRAWN: '+label(F).toUpperCase(),'ok');c.chip('draw',tG,'DRAWN: '+label(F),'ok');
+  const t4=narr(c,Math.max(t3,tG),'This time the result is '+label(F)+'.',tG+2.6);
+  const t5=narr(c,t4,'Every team starts all of its final matches from '+label(F)+', until the final is over.');
   let tz=t4+.2;
   teams.forEach((nm,i)=>{
-    const rt=R.B,h=heading(rt[0],rt[1]);
+    const rt=R[F],h=heading(rt[0],rt[1]);
     c.chip('match',tz,`${nm} · final match`,'red');
     c.jump('rob','x',tz,rt[0][0]);c.jump('rob','y',tz,rt[0][1]);c.jump('rob','r',tz,h);c.setPos('rob',rt[0][0],rt[0][1],h);c.jump('rob','o',tz,1);
     const te=c.move('rob',rt.slice(1,6),tz+.5,240,{turn:0});c.hide('rob',te+.15,.3);
     tz=Math.max(te+.8,tz+2.6);
   });
   if(tz>t5)c.cap(t5,tz,'Same entrance for every team, in every final match.');
-  c.dur=narr(c,Math.max(t5,tz),'In short: one draw for the ranking round and a new draw for the final. Relaunches also happen at the drawn entrance.')+.8;
+  c.dur=narr(c,Math.max(t5,tz),'In short: ranking matches always use Entrance 1 (A), and only the final match is drawn. Relaunches happen at the same entrance.')+.8;
   return c;
 }
 
@@ -1513,7 +1510,7 @@ function play(){if(T>=clip.dur-.01)T=0;playing=true;lastTs=performance.now();las
 function pause(){playing=false;stopSpeak();ui()}
 function seek(t){stopSpeak();T=Math.max(0,Math.min(clip.dur,t));lastCap='\u0000';lastBan=-2;boardKey='';sample(T);ui()}
 function openClip(id){
-  stopSpeak();playing=false;clip=CLIPS[id]();buildActors(clip);buildBoard(clip);T=0;lastCap='\u0000';lastBan=-2;$('hud').dataset.h='x';sample(0);ui();
+  stopSpeak();playing=false;setEnt(entFor(id));clip=CLIPS[id]();document.getElementById('ents').classList.toggle('off',id!=='final');buildActors(clip);buildBoard(clip);T=0;lastCap='\u0000';lastBan=-2;$('hud').dataset.h='x';sample(0);ui();
   document.querySelectorAll('#tabs .tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.id===id?'true':'false'));
   if(camMode==='guided'){const v=clip.camAt(0);ctl.target.set(v[0]+v[2]/2,0,v[1]+v[3]/2);const d=fitDist(v[2],v[3],Math.asin(dir.y));cam.position.copy(ctl.target).add(dir.clone().multiplyScalar(d))}
 }
@@ -1531,8 +1528,8 @@ function resize(){const w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)retur
 /* ---------- wiring ---------- */
 MATCHES.forEach(([id,txt])=>{const b=document.createElement('button');b.className='tab';b.type='button';b.role='tab';b.dataset.id=id;b.textContent=txt;
   b.onclick=()=>{curId=id;openClip(id)};$('tabs').appendChild(b)});
-['A','B','C'].forEach(k=>{const b=document.createElement('button');b.type='button';b.textContent=k;b.dataset.k=k;b.setAttribute('aria-pressed',k==='A'?'true':'false');
-  b.onclick=()=>{setEnt(k);document.querySelectorAll('#ents button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.k===k?'true':'false'));openClip(curId)};$('ents').appendChild(b)});
+['A','B','C'].forEach(k=>{const b=document.createElement('button');b.type='button';b.textContent=k;b.dataset.k=k;b.setAttribute('aria-pressed',k===FINAL_ENT?'true':'false');
+  b.onclick=()=>{FINAL_ENT=k;document.querySelectorAll('#ents button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.k===k?'true':'false'));openClip(curId)};$('ents').appendChild(b)});
 [['guided','Guided'],['whole','Whole field'],['top','Top-down'],['red','Red side'],['blue','Blue side'],['free','Free']].forEach(([m,txt])=>{
   const b=document.createElement('button');b.type='button';b.textContent=txt;b.dataset.m=m;b.setAttribute('aria-pressed',m==='guided'?'true':'false');
   b.onclick=()=>{if(m==='guided'){tween=null;setCamMode('guided')}else if(m==='free'){setCamMode('free')}else preset(m)};$('cams').appendChild(b)});

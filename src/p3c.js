@@ -26,7 +26,7 @@ function mkArenaAuto(){
     {t:'Entrance 1 (A)',x:110,y:-16,tone:'dark',tx:START_OF('A')[0],ty:START_OF('A')[1]-20,zone:ez('A'),cap:'Each side has three entrances. Entrance 1 (A) is the top-left cell.'},
     {t:'Entrance 2 (B)',x:338,y:-16,tone:'dark',tx:START_OF('B')[0],ty:START_OF('B')[1]-20,zone:ez('B'),cap:'Entrance 2 (B) is the top cell beside the centre line.'},
     {t:'Entrance 3 (C)',x:110,y:410,tone:'dark',tx:START_OF('C')[0],ty:START_OF('C')[1]+22,zone:ez('C'),cap:'Entrance 3 (C) is the bottom-left cell.'},
-    {t:'One draw per round',x:520,y:410,tone:'yel',cap:'The Auto robot starts from the entrance that was drawn. The letters A, B, C name entrances, not alliances.'},
+    {t:'Draw: final match only',x:520,y:410,tone:'yel',cap:'In ranking matches the Auto robot always starts from Entrance 1 (A). Only the final match uses a random draw. The letters A, B, C name entrances, not alliances.'},
     {t:'Parking Zone',x:480,y:230,tone:'dark',tx:PARK[0]+20,ty:PARK[1],zone:{x:PARK[0],y:PARK[1],w:74,h:74},cap:'Deliver the cube to the purple Parking Zone in the bottom-right cell of your side.'},
     {t:'Black tape',x:480,y:200,tone:'dark',tx:PARK[0]+36,ty:PARK[1]-36,cap:'A strip of black tape lies across the entrance of each Parking Zone, the only open side of the cell.'},
     {t:'Every cell: 20 × 20 cm',x:260,y:560,tone:'yel',tx:cx(0),ty:cy(2),cap:'Each block of the maze is 20 by 20 centimetres.',after:(c,ts)=>{c.to('dim','o',ts+.4,ts+.7,1)}},
@@ -76,25 +76,19 @@ function mkComponents(){
 /* ---------- start entrance draw ---------- */
 function mkDraw(){
   const c=new Clip({view:V_AUTO});
-  const keys=['A','B','C'];
+  const keys=['A','B','C'],F=FINAL_ENT;
   keys.forEach(k=>{const [x,y]=START_OF(k);c.add('h'+k,'shape',{x,y,w:70,h:70,shape:'rect',fill:'rgba(255,210,26,.30)',stroke:'#ffd21a',sw:6,o:0})});
   const lp={A:[110,-16],B:[338,-16],C:[110,410]};
   keys.forEach(k=>{const [x,y]=START_OF(k);lbl(c,'l'+k,`Entrance ${ENTS[k].n} (${k})`,lp[k][0],lp[k][1],{tone:'dark',tx:x,ty:y+(lp[k][1]<0?-20:22)})});
   const R={};keys.forEach(k=>R[k]=routeFor(k));
   c.add('rob','auto',{x:R.A[0][0],y:R.A[0][1],r:heading(R.A[0],R.A[1]),o:0});
-  const shuffle=(t0,seq,note)=>{let t=t0,d=.16;seq.forEach((k,i)=>{c.jump('h'+k,'o',t,1);if(i<seq.length-1)c.jump('h'+k,'o',t+d,0);t+=d;d=Math.min(.55,d*1.18)});return t};
+  const shuffle=(t0,seq)=>{let t=t0,d=.16;seq.forEach((k,i)=>{c.jump('h'+k,'o',t,1);if(i<seq.length-1)c.jump('h'+k,'o',t+d,0);t+=d;d=Math.min(.55,d*1.18)});return t};
   const label=(k)=>`Entrance ${ENTS[k].n} (${k})`;
-  /* part 1: the draw before the ranking round */
-  let t=narr(c,0,'Before the competition starts, one random draw picks the start entrance for the whole ranking round.');
-  c.show('lA',.5);c.show('lB',1.2);c.show('lC',1.9);
-  c.chip('draw',t,'RANKING DRAW','dark');c.ban(t,t+3.4,'DRAWING…','info');
-  const tF=shuffle(t+.3,['B','C','A','C','B','A','C','B','C','A']);
-  c.ban(tF,tF+2.4,'DRAWN: '+label('A').toUpperCase(),'ok');c.chip('draw',tF,'DRAWN: '+label('A'),'ok');
-  narr(c,t,'Drawing now. This single draw covers the whole ranking round.',tF);
-  let t1=narr(c,tF,'The result is Entrance 1 (A).',tF+2.6);
-  /* part 2: every team uses it for every ranking match */
-  const t2=narr(c,t1,'Every team now uses that same entrance in all of its ranking matches, until the ranking round is over.');
-  const teams=['Team 1','Team 2','Team 3'];let tc=t1+.2;
+  const teams=['Team 1','Team 2','Team 3'];
+  /* part 1: ranking matches have no draw, they always start at Entrance 1 (A) */
+  let t=narr(c,0,'In the ranking round there is no draw. Every team always starts from Entrance 1 (A).');
+  c.show('lA',.4);c.show('hA',.4);c.chip('draw',.2,'RANKING: ENTRANCE 1 (A)','ok');
+  let tc=t+.2;
   teams.forEach((nm,i)=>{
     const rt=R.A,h=heading(rt[0],rt[1]);
     c.chip('match',tc,`${nm} · ranking match`,'blue');
@@ -102,27 +96,27 @@ function mkDraw(){
     const te=c.move('rob',rt.slice(1,6),tc+.5,240,{turn:0});c.hide('rob',te+.15,.3);
     tc=Math.max(te+.8,tc+2.6);
   });
-  if(tc>t2)c.cap(t2,tc,'Same entrance for every team, in every ranking match.');
-  /* part 3: a new draw for the final */
-  const tf=Math.max(tc,t2)+.3;
-  c.chip('match',tf,'','blue');
-  c.hide('hA',tf,.3);
+  c.cap(t,tc,'Same entrance for every team, in every ranking match.');
+  /* part 2: only the final match is drawn */
+  const tf=tc+.3;
+  c.chip('match',tf,'','blue');c.hide('hA',tf,.3);c.hide('lA',tf,.3);c.show('lA',tf+.6);c.show('lB',tf+1.2);c.show('lC',tf+1.8);
   c.chip('draw',tf,'FINAL DRAW','dark');c.ban(tf,tf+3.4,'DRAWING…','info');
-  const t3=narr(c,tf,'When the final match comes, the draw is made again.');
-  const tG=shuffle(tf+.4,['A','C','B','A','C','A','B','C','A','B']);
-  c.ban(tG,tG+2.4,'DRAWN: '+label('B').toUpperCase(),'ok');c.chip('draw',tG,'DRAWN: '+label('B'),'ok');
-  const t4=narr(c,Math.max(t3,tG),'This time the result is Entrance 2 (B).',tG+2.6);
-  const t5=narr(c,t4,'Every team starts all of its final matches from Entrance 2 (B), until the final is over.');
+  const t3=narr(c,tf,'Only the final match uses a random draw. One draw picks the start entrance for the whole final.');
+  const seq=['B','C','A','C','B','A','C','B','C','A'].concat([F]);
+  const tG=shuffle(tf+.6,seq);
+  c.ban(tG,tG+2.4,'DRAWN: '+label(F).toUpperCase(),'ok');c.chip('draw',tG,'DRAWN: '+label(F),'ok');
+  const t4=narr(c,Math.max(t3,tG),'This time the result is '+label(F)+'.',tG+2.6);
+  const t5=narr(c,t4,'Every team starts all of its final matches from '+label(F)+', until the final is over.');
   let tz=t4+.2;
   teams.forEach((nm,i)=>{
-    const rt=R.B,h=heading(rt[0],rt[1]);
+    const rt=R[F],h=heading(rt[0],rt[1]);
     c.chip('match',tz,`${nm} · final match`,'red');
     c.jump('rob','x',tz,rt[0][0]);c.jump('rob','y',tz,rt[0][1]);c.jump('rob','r',tz,h);c.setPos('rob',rt[0][0],rt[0][1],h);c.jump('rob','o',tz,1);
     const te=c.move('rob',rt.slice(1,6),tz+.5,240,{turn:0});c.hide('rob',te+.15,.3);
     tz=Math.max(te+.8,tz+2.6);
   });
   if(tz>t5)c.cap(t5,tz,'Same entrance for every team, in every final match.');
-  c.dur=narr(c,Math.max(t5,tz),'In short: one draw for the ranking round and a new draw for the final. Relaunches also happen at the drawn entrance.')+.8;
+  c.dur=narr(c,Math.max(t5,tz),'In short: ranking matches always use Entrance 1 (A), and only the final match is drawn. Relaunches happen at the same entrance.')+.8;
   return c;
 }
 

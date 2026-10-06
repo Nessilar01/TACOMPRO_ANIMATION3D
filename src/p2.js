@@ -20,6 +20,8 @@ const heading=(a,b)=>Math.atan2(b[0]-a[0],-(b[1]-a[1]))*180/Math.PI;
 function routeFor(k){return bfs(ENTS[k].cell,[4,4]).map(([c,r])=>[cx(c),cy(r)])}
 function setEnt(k){ENT=k;ROUTE=routeFor(k);START=ROUTE[0];PARK=ROUTE[ROUTE.length-1];H0=heading(ROUTE[0],ROUTE[1]);ELBL=`Entrance ${ENTS[k].n} (${k})`}
 setEnt('A');
+let FINAL_ENT='B';   /* ranking matches always start at Entrance 1 (A); only the final match uses a random draw, FINAL_ENT is the drawn result */
+const entFor=id=>id==='final'?FINAL_ENT:'A';
 
 const HOME=[82,457];
 /* the red alliance owns the LEFT half (goalpost x~84), the blue alliance the RIGHT half (goalpost x~662). Robots never cross the central ball platform (x~373). A robot places its cube on ITS OWN side's platform.

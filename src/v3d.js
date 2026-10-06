@@ -254,7 +254,7 @@ function play(){if(T>=clip.dur-.01)T=0;playing=true;lastTs=performance.now();las
 function pause(){playing=false;stopSpeak();ui()}
 function seek(t){stopSpeak();T=Math.max(0,Math.min(clip.dur,t));lastCap='\u0000';lastBan=-2;boardKey='';sample(T);ui()}
 function openClip(id){
-  stopSpeak();playing=false;clip=CLIPS[id]();buildActors(clip);buildBoard(clip);T=0;lastCap='\u0000';lastBan=-2;$('hud').dataset.h='x';sample(0);ui();
+  stopSpeak();playing=false;setEnt(entFor(id));clip=CLIPS[id]();document.getElementById('ents').classList.toggle('off',id!=='final');buildActors(clip);buildBoard(clip);T=0;lastCap='\u0000';lastBan=-2;$('hud').dataset.h='x';sample(0);ui();
   document.querySelectorAll('#tabs .tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.id===id?'true':'false'));
   if(camMode==='guided'){const v=clip.camAt(0);ctl.target.set(v[0]+v[2]/2,0,v[1]+v[3]/2);const d=fitDist(v[2],v[3],Math.asin(dir.y));cam.position.copy(ctl.target).add(dir.clone().multiplyScalar(d))}
 }
@@ -272,8 +272,8 @@ function resize(){const w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)retur
 /* ---------- wiring ---------- */
 MATCHES.forEach(([id,txt])=>{const b=document.createElement('button');b.className='tab';b.type='button';b.role='tab';b.dataset.id=id;b.textContent=txt;
   b.onclick=()=>{curId=id;openClip(id)};$('tabs').appendChild(b)});
-['A','B','C'].forEach(k=>{const b=document.createElement('button');b.type='button';b.textContent=k;b.dataset.k=k;b.setAttribute('aria-pressed',k==='A'?'true':'false');
-  b.onclick=()=>{setEnt(k);document.querySelectorAll('#ents button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.k===k?'true':'false'));openClip(curId)};$('ents').appendChild(b)});
+['A','B','C'].forEach(k=>{const b=document.createElement('button');b.type='button';b.textContent=k;b.dataset.k=k;b.setAttribute('aria-pressed',k===FINAL_ENT?'true':'false');
+  b.onclick=()=>{FINAL_ENT=k;document.querySelectorAll('#ents button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.k===k?'true':'false'));openClip(curId)};$('ents').appendChild(b)});
 [['guided','Guided'],['whole','Whole field'],['top','Top-down'],['red','Red side'],['blue','Blue side'],['free','Free']].forEach(([m,txt])=>{
   const b=document.createElement('button');b.type='button';b.textContent=txt;b.dataset.m=m;b.setAttribute('aria-pressed',m==='guided'?'true':'false');
   b.onclick=()=>{if(m==='guided'){tween=null;setCamMode('guided')}else if(m==='free'){setCamMode('free')}else preset(m)};$('cams').appendChild(b)});

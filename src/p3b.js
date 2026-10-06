@@ -259,7 +259,7 @@ function mkFull(drops){
   c.add('person','person',{x:12,y:300,o:0});
   addPlats(c);manualProps(c);parkZone(c,0,0);
   const by=BANDY();
-  lbl(c,'lEnt',ELBL+' (drawn)',170,by,{tone:'dark',tx:START[0],ty:START[1]+(by<0?-18:20)});
+  lbl(c,'lEnt',ELBL,170,by,{tone:'dark',tx:START[0],ty:START[1]+(by<0?-18:20)});
   lbl(c,'lPlat','Cube Base platform (red side)',250,640,{tone:'dark',tx:PLAT[0]+22,ty:PLAT[1]+14});
   lbl(c,'lMan','Manual robot stays still',200,440,{tone:'warn',tx:HOME[0]+30,ty:HOME[1]});
   let ck=90;
@@ -267,7 +267,7 @@ function mkFull(drops){
   c.chip('mode',0,'RANKING MATCH','dark');
   c.chip('clock',0,'AUTO 90 s','red');
   c.ban(.4,2.4,'INSPECTION PASSED','ok');c.vis('lEnt',.6,6.5);
-  let t=narr(c,0,'A full ranking match. Both robots pass inspection, and the Auto robot sits at its drawn entrance holding the cube.',6.4);
+  let t=narr(c,0,'A full ranking match. Both robots pass inspection, and the Auto robot sits at Entrance 1 (A) holding the cube.',6.4);
   c.ban(t,t+1.4,'START!','ok');t+=.6;
   let cubeId='cube',cf0=0,tPark;
   if(!drops){
@@ -282,7 +282,7 @@ function mkFull(drops){
     narr(c,t,'Auto phase: carry the cube through the maze…',tD);
     c.ban(tD,tD+1.9,'CUBE DROPPED!','warn');
     const cp=[c.pos.cube.x,c.pos.cube.y],rp=[c.pos.rob.x,c.pos.rob.y];
-    const t1=narr(c,tD,'The cube drops before the Parking Zone, so the team relaunches at the same drawn entrance.');
+    const t1=narr(c,tD,'The cube drops before the Parking Zone, so the team relaunches at the same entrance, Entrance 1 (A).');
     c.vis('lMan',tD+.5,t1+5);
     const rEnd=c.move('ref',[cp],t1,150,{turn:0});c.hide('cube',rEnd,.25);
     const t2=narr(c,t1,'The referee removes the cube, the team tells the referee, and a teammate carries the robot back.',rEnd+1);

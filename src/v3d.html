@@ -38,6 +38,7 @@ h1{font:700 clamp(20px,3.2vw,30px)/1.15 var(--f-display);margin:0;text-wrap:bala
 .lblx{font:500 12px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:8px}
 .seg{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
 .seg button{padding:6px 12px;min-height:36px}
+.seg.off{opacity:.45}.seg.off button{pointer-events:none}
 .grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px;align-items:start}
 @media (max-width:920px){.grid{grid-template-columns:minmax(0,1fr)}}
 .left{min-width:0;display:flex;flex-direction:column;gap:10px}
@@ -83,7 +84,7 @@ h1{font:700 clamp(20px,3.2vw,30px)/1.15 var(--f-display);margin:0;text-wrap:bala
   </header>
   <div class="bar">
     <div class="tabs" role="tablist" aria-label="Match" id="tabs"></div>
-    <div class="seg" id="ents" role="group" aria-label="Maze entrance"><span class="lblx">Maze entrance</span></div>
+    <div class="seg" id="ents" role="group" aria-label="Maze entrance"><span class="lblx">Final match entrance (drawn)</span></div>
   </div>
   <div class="grid">
     <section class="left" aria-label="3D stage">
