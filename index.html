@@ -214,6 +214,17 @@ class Clip{
     for(let i=1;i<k.length;i++)if(t<=k[i][0]){let f=(t-k[i-1][0])/(k[i][0]-k[i-1][0]);f=f*f*(3-2*f);return k[i-1][1].map((v,j)=>v+(k[i][1][j]-v)*f)}
     return k[k.length-1][1]}
 }
+/* The field photo has all 13 ball slots printed on it. When a ball actor that starts on a slot is picked up, paint the slot empty
+   from that moment on, so the ball really leaves the central platform. Called once for every clip that is opened. */
+function autoCover(c){
+  const SL=[];for(let k=0;k<13;k++)if(k!==4&&k!==8)SL.push(436+51*k);   /* slots 5 and 9 hold the flags, not balls */
+  Object.values(c.A).filter(a=>a.type==='ball'&&a.init.o>.5&&Math.abs(a.init.x-373)<7).forEach(a=>{
+    const sy=SL.find(y=>Math.abs(y-a.init.y)<10);if(sy===undefined)return;
+    let tm=null;for(let t=0;t<=c.dur;t+=.04){const v=c.val(a.id,t);if(Math.hypot(v.x-a.init.x,v.y-a.init.y)>4||v.o<.5){tm=t;break}}
+    if(tm===null)return;
+    const id='cov_'+a.id;c.add(id,'shape',{x:373,y:sy,w:a.init.c==='g'?42:34,h:a.init.c==='g'?42:34,shape:'circle',fill:'#474644',o:0});c.jump(id,'o',tm,1);
+  });
+}
 function lbl(c,id,text,x,y,o={}){c.add(id,'label',Object.assign({text,x,y,o:0,tone:'info'},o))}
 const seg=(c,id,a)=>a.forEach(([x,y])=>c.vis(id,x,y));
 
