@@ -31,7 +31,6 @@ function mkFinal(){
   PINS.forEach((p,i)=>c.add('pinB'+i,'pin',{x:p[0],y:p[1],c:'b'}));
   PINS.forEach((p,i)=>c.add('pinR'+i,'pin',{x:IW-p[0],y:p[1],c:'r'}));
   c.add('fTop','flag',{x:F1[0],y:F1[1],r:-90});c.add('fBot','flag',{x:F2[0],y:F2[1],r:90});   /* top tip points at RED, bottom tip at BLUE: each alliance starts with 5 */
-  c.scoreRaw(.3,'Reverse Flags at rest: tips point opposite ways',5,'R');c.scoreRaw(.3,'Reverse Flags at rest: tips point opposite ways',5,'B');   /* the two Reverse Flags on the central platform */
   [['y1',533,'y'],['k1',588,'y'],['g2',995,'g'],['y2',893,'y'],['g3',487,'g'],['y3',690,'y'],['y4',945,'y']].forEach(([id,y,col])=>c.add(id,'ball',{x:372,y,c:col}));
   TS.forEach(T=>{
     T.route=ROUTE.map(([x,y])=>[T.X(x),T.Y(y)]);T.start=T.route[0];T.park=T.route[T.route.length-1];T.home=[T.X(HOME[0]),T.Y(HOME[1])];
@@ -94,20 +93,20 @@ function mkFinal(){
   const sRb=fire(c,'mRb','g2',300,995,90,300,792,90,tt,goalX,GOAL[1]+30);
   c.score(sRb+.8,'greenBall',1,'Team 2 · Green ball in the goalpost','R');c.hide('g2',sRb+1.6,.3);
   const sRb2=fire(c,'mRb','y2',300,893,90,300,880,90,sRb+2,F2[0]-6,F2[1]+4,.6);
-  flipFlag(c,'fBot',sRb2+.6,'R');c.scoreRaw(sRb2+.7,'Team 2 · Bottom flag turned to red',5,'R');c.scoreRaw(sRb2+.7,'Bottom flag no longer points at blue',-5,'B');
+  flipFlag(c,'fBot',sRb2+.6,'R');
   /* blue 1: green ball, then hits the TOP flag (tip points at red) and turns it toward blue */
   tt=Bt.tP+1.6;
   const sBt=fire(c,'mBt','g3',446,487,-90,446,690,-90,tt,rGoalX,GOAL[1]-20);
   c.score(sBt+.8,'greenBall',1,'Team 1 · Green ball in the goalpost','B');c.hide('g3',sBt+1.6,.3);
   const sBt2=fire(c,'mBt','y3',446,690,-90,446,640,-90,sBt+2,F1[0]+6,F1[1]+4,.6);
-  flipFlag(c,'fTop',sBt2+.6,'B');c.scoreRaw(sBt2+.7,'Team 1 · Top flag turned to blue',5,'B');c.scoreRaw(sBt2+.7,'Top flag no longer points at red',-5,'R');
+  flipFlag(c,'fTop',sBt2+.6,'B');
   /* blue 2: yellow ball + one pin */
   tt=Bb.tP+1.6;
   const sBb=fire(c,'mBb','y4',446,945,-90,446,792,-90,tt,rGoalX,GOAL[1]+36);
   c.score(sBb+.8,'yellowBall',1,'Team 2 · Yellow ball in the goalpost','B');
   pinDown(c,'pinR2',sBb+.9,-85,IW-GOAL[0]-30);c.score(sBb+1,'pin',1,'Team 2 · Pin knocked down','B');c.hide('y4',sBb+1.8,.3);
   const tTasks=Math.max(sRt+2.2,sRb2+2,sBt2+2,sBb+2.2);
-  e=narr(c,e,'Red throws balls at the blue goalpost, and blue throws balls at the red goalpost. The flags start pointing opposite ways, so each alliance already holds 5 points. Only a tip that points at your own side counts. Red turns the bottom flag toward red, and blue turns the top flag toward blue: plus 5 for the thrower, minus 5 for the other alliance.',tTasks);
+  e=narr(c,e,'Red throws balls at the blue goalpost, and blue throws balls at the red goalpost. The flags start pointing opposite ways. Red turns the bottom flag toward red, and blue turns the top flag toward blue. The flags are only checked when the game ends.',tTasks);
   /* ---- red knocks the blue cube off its platform; blue recovers it ---- */
   const tk=tTasks+.3;
   const sK=fire(c,'mRt','k1',300,588,90,300,640,90,tk,PLATS[2][0],PLATS[2][1],.9);
@@ -128,9 +127,10 @@ function mkFinal(){
   const t7=Math.max(e,tPB+1.8)+.3;
   c.chip('skip',t7,'⏩ TIME SKIPPED','yel');c.chip('clock',t7,'MANUAL 120 s','blue');c.count('clock',t7,t7+2,'MANUAL',120,0,'blue');
   TS.forEach((T,i)=>c.score(t7+2.2+i*.3,'cubeBase',1,'Team '+T.n+' · Cube on the Cube Base platform',T.side));
+  c.score(t7+3.2,'flag',1,'Reverse Flags checked at game end: bottom flag points at red','R');c.score(t7+3.2,'flag',1,'Reverse Flags checked at game end: top flag points at blue','B');
   const win=tR===tB?'DRAW':(tR>tB?'RED':'BLUE')+' ALLIANCE WINS';
   c.ban(t7+3.6,t7+6.4,`RED ${tR} · BLUE ${tB}`,'ok');
-  c.dur=narr(c,t7,`Time is up, and the platform points are counted for all four cubes, including the one that was knocked off. Final score: red ${tR} points, blue ${tB} points. The alliance with more points wins.`,t7+7)+1;return c;
+  c.dur=narr(c,t7,`Time is up. The platform points are counted for all four cubes, including the one that was knocked off, and the Reverse Flags are checked. Final score: red ${tR} points, blue ${tB} points. The alliance with more points wins.`,t7+7)+1;return c;
 }
 
 /* ---------- cube falls off the Cube Base platform / leaves the arena (opponent ball hits it) ---------- */
@@ -221,15 +221,15 @@ function mkCentral(){
   lbl(c,'lTipR','Tip points at RED',250,F1[1]-40,{tone:'dark',tx:F1[0]-14,ty:F1[1]});
   lbl(c,'lTipB','Tip points at BLUE',510,F1[1]-40,{tone:'dark',tx:F1[0]+14,ty:F1[1]});
   const t3b=e+.3;
-  e=narr(c,t3b,'Each flag is an arrow, and only a tip that points at your own side counts: 5 points. The flags start pointing opposite ways, so each alliance already holds 5 points.',t3b+5.5);
+  e=narr(c,t3b,'Each flag is an arrow, and only a tip that points at your own side counts: 5 points. The flags are only checked when the game ends, and they start pointing opposite ways.',t3b+5.5);
   c.vis('lTipR',t3b+.3,e);c.vis('lTipB2',t3b+.3,e);
   const t4=e+.3;
-  e=narr(c,t4,'A red robot hits the bottom flag, which pointed at blue. Its tip turns toward red: plus 5 for red, minus 5 for blue.',t4+4.4);
+  e=narr(c,t4,'A red robot hits the bottom flag, which pointed at blue. Its tip turns toward red. This is counted at the end of the game.',t4+4.4);
   c.vis('tbR',t4+1,t4+2.2);
   shoot(c,'tbR',t4+1.2,F2[0]-8,F2[1]+4,.6);flipFlag(c,'flag2',t4+1.8,'R');
   c.vis('lTipR2',t4+2.4,e+.6);c.ban(t4+1.8,t4+3.4,'FLAG TURNED TO RED ✓','ok');
   const t5=e+.3;
-  e=narr(c,t5,'A blue robot hits the top flag, which pointed at red. Its tip turns toward blue: plus 5 for blue, minus 5 for red.',t5+4.4);
+  e=narr(c,t5,'A blue robot hits the top flag, which pointed at red. Its tip turns toward blue. This is counted at the end of the game.',t5+4.4);
   c.vis('tbB',t5+1,t5+2.2);
   shoot(c,'tbB',t5+1.2,F1[0]+8,F1[1]+4,.6);flipFlag(c,'flag',t5+1.8,'B');
   c.vis('lTipB',t5+2.4,e+.6);c.ban(t5+1.8,t5+3.2,'FLAG TURNED TO BLUE ✓','ok');

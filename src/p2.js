@@ -35,7 +35,7 @@ const SCORE={
   parkCube:{label:'Park in the Parking Zone holding the cube (replaces the +5)',pts:10,ok:1},
   cubeBase:{label:'Cube on the Cube Base platform (counted at the end of the game)',pts:15,ok:1},
   pin:{label:'Pin knocked down (each)',pts:5,ok:1},
-  flag:{label:'Reverse flag tip turned toward your own side by a thrown ball (each)',pts:5,ok:1},
+  flag:{label:'Reverse flag tip turned toward your own side by a thrown ball (each), checked when the game ends',pts:5,ok:1},
   greenBall:{label:'Green ball in the goalpost (each)',pts:5,ok:1},
   yellowBall:{label:'Yellow ball in the goalpost (each)',pts:2.5,ok:1},
   pickFromGoal:{label:'Ball picked up from the goal (each)',pts:-5,ok:1},

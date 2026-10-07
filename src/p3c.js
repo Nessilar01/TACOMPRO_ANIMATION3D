@@ -79,7 +79,7 @@ function mkComponents(){
     {t:'Goalpost (Manual)\n1000 × 400 mm',x:450,y:850,tone:'info',tx:GOAL[0]-10,ty:GOAL[1]+60,zone:{x:GOAL[0]+4,y:GOAL[1],w:100,h:345},cap:'Goalpost: to score with a ball, shoot it in here.'},
     {t:'Target pins\n250 mm tall',x:450,y:470,tone:'info',tx:PINS[0][0],ty:PINS[0][1],zone:{x:PINS[1][0],y:PINS[1][1],w:36,h:300},cap:'The red or blue target pins stand on top of the goal. Shoot them down to score. Each pin is 250 millimetres tall.'},
     {t:'Yellow ball Ø70 mm\nGreen ball Ø100 mm',x:200,y:760,tone:'yel',tx:372,ty:640,zone:{x:373,y:640,w:44,h:300},cap:'There are two kinds of ball: a small yellow one, 70 millimetres across, and a large green one, 100.'},
-    {t:'Reverse Flags\n(2, central platform)',x:540,y:420,tone:'dark',tx:392,ty:639,zone:{x:F1[0],y:F1[1],w:60,h:56},zone2:{x:F2[0],y:F2[1],w:60,h:56},cap:'The two Reverse Flags sit in the upper layer of the central platform, in slots 5 and 9 of its 13 ball slots. The flags start pointing opposite ways, so each alliance already holds 5 points (only a tip pointing at your own side counts). A flag only counts when a thrown ball flips it.'},
+    {t:'Reverse Flags\n(2, central platform)',x:540,y:420,tone:'dark',tx:392,ty:639,zone:{x:F1[0],y:F1[1],w:60,h:56},zone2:{x:F2[0],y:F2[1],w:60,h:56},cap:'The two Reverse Flags sit in the upper layer of the central platform, in slots 5 and 9 of its 13 ball slots. The flags start pointing opposite ways. They are only checked when the game ends: each tip pointing at your own side scores 5 points.'},
     {t:'Central area\nballs about 170 mm apart',x:200,y:1010,tone:'dark',tx:372,ty:998,cap:'The central area is the strip down the middle. The rulebook picture puts the balls about 170 millimetres apart.'}
   ];
   addPlats(c);

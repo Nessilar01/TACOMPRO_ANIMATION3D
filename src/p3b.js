@@ -192,9 +192,8 @@ function manualProps(c){
   lbl(c,'lBall','Balls in the central area',200,430,{tone:'yel',tx:372,ty:520});
 }
 /* man must be at (300,538) facing east. Three tasks: yellow ball + pins, green ball, flag. Returns end time. */
-function manualTasks(c,t0,clock=true){
+function manualTasks(c,t0,clock=true,flagRow=true){
   let t=t0;
-  c.scoreRaw(t0+.2,'Reverse Flag at rest: one tip already points at your side',5);
   c.vis('lBall',t,t+3);centerMark(c,t+1,t+6,580,430);
   let e=narr(c,t,'Task A: grab a yellow ball from the central area and launch it into the opposing goalpost.');
   c.to('man','ext',t+.4,t+1.1,.45);
@@ -223,7 +222,7 @@ function manualTasks(c,t0,clock=true){
   c.score(t2+.8,'greenBall');
   c.hide('ball2',t2+1.6,.3);
   const tC=Math.max(e,t2+2);
-  e=narr(c,tC,'Task C: throw a ball at the Reversed Flag and turn its tip toward your own red side. Only a tip that points at your own side counts.');
+  e=narr(c,tC,'Task C: throw a ball at the Reversed Flag and turn its tip toward your own red side. Only a tip that points at your own side counts, and the flags are checked when the game ends.');
   const m3=c.move('man',[[300,588]],tC,220,{turn:.2,face:90});
   c.to('man','ext',m3,m3+.7,.45);c.to('man','ext',m3+.8,m3+1.5,.15);
   const m4=c.move('man',[[300,F2[1]-12]],m3+1.6,200,{turn:.1,face:90});
@@ -233,9 +232,9 @@ function manualTasks(c,t0,clock=true){
   shoot(c,'ball3',t3,F2[0]-6,F2[1]+4,.6);
   flipFlag(c,'flag',t3+.6,'R');
   c.ban(t3+.6,t3+2.4,'FLAG TURNS TO RED ✓','ok');
-  c.score(t3+.7,'flag');
   const tEnd=Math.max(e,t3+2.8);
-  c.cap(Math.min(e,t3+.2),tEnd,'Every completed task adds points to the scoreboard.');
+  if(flagRow)c.score(tEnd-.2,'flag',2,'Reverse Flags checked at game end: both tips point at your side');   /* flags are only counted when the game ends */
+  c.cap(Math.min(e,t3+.2),tEnd,'Ball and pin points appear straight away. The Reverse Flags are checked when the game ends.');
   if(clock)c.count('clock',t0,tEnd,'MANUAL',120,50,'blue');
   return tEnd;
 }
@@ -328,13 +327,14 @@ function mkFull(drops){
   const tw=c.move('man',[[300,450],[300,538]],R.tP+1.4,200,{turn:.2,face:90});
   const t6=narr(c,t5,'The Manual robot does not have to wait. As soon as the cube is placed, it carries on scoring with balls and the Reversed Flag, while the Auto clock keeps running.',Math.max(tw,t5+3.4));
   c.ban(t6-1.6,t6,'MANUAL ROBOT PLAYS ON','ok');
-  const tE0=manualTasks(c,t6+.2,false);
+  const tE0=manualTasks(c,t6+.2,false,false);
   c.count('clock',R.tP+.5,tE0,'AUTO',ck-6,0,'red');
   c.ban(tE0,tE0+1.8,'90 s · AUTO PHASE ENDS','warn');c.hide('rob',tE0,.4);
   const tE=tE0+1.8;c.cap(tE0,tE+1.9,'The 90-second Auto phase ends and the Manual phase clock starts.');
   c.chip('clock',tE,'MANUAL 120 s','blue');c.chip('mode',tE,'MANUAL PHASE','dark');
-  const tot=c.sc.reduce((a,e)=>a+e.pts,0)+SCORE.cubeBase.pts;
   const t7=tE+1.9;
+  c.score(t7+2.3,'flag',2,'Reverse Flags checked at game end: both tips point at your side');
+  const tot=c.sc.reduce((a,e)=>a+e.pts,0)+SCORE.cubeBase.pts;
   c.chip('skip',t7,'⏩ TIME SKIPPED','yel');
   c.count('clock',t7,t7+2,'MANUAL',120,0,'blue');
   c.ban(t7+2,t7+4.2,'MATCH OVER · '+tot+' PTS','ok');c.score(t7+2.2,'cubeBase');
