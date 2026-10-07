@@ -53,7 +53,21 @@ function mkArenaManual(){
   const t2=narr(c,t1,'It is divided into two zones, one per alliance: zone A, Red, and zone B, Blue.');
   c.vis('zA',t1,t1+(t2-t1)/2);c.vis('zB',t1+(t2-t1)/2,t2);c.vis('lA',t1,t1+(t2-t1)/2);c.vis('lB',t1+(t2-t1)/2,t2);
   c.vis('g1',t2,t2+5.5);c.vis('lMid',t2,t2+5.5);
-  c.dur=narr(c,t2,'The strip down the middle is the central area, where the balls are placed for both sides to grab.')+.8;return c;
+  const t3=narr(c,t2,'The strip down the middle is the central area, where the balls are placed for both sides to grab.');
+  /* equipment that belongs to the Manual arena: four Cube Base platforms and the two Reverse Flags (always drawn, highlighted while described) */
+  addPlats(c);
+  c.add('flag0','flag',{x:F1[0],y:F1[1],r:-90});c.add('flag','flag',{x:F2[0],y:F2[1],r:90});   /* top flag points at red, bottom flag at blue */
+  PLATS.forEach((p,i)=>{c.add('pz'+i,'shape',{x:p[0],y:p[1],w:46,h:46,shape:'rect',fill:'rgba(255,255,255,.16)',stroke:'#fff',sw:3,dash:'8 6',o:0,pulse:true})});
+  lbl(c,'lPlR','Cube Base platform (Red)',250,640,{tone:'warn',tx:PLATS[0][0]+22,ty:PLATS[0][1]+14,o:0});
+  lbl(c,'lPlB','Cube Base platform (Blue)',496,640,{tone:'info',tx:PLATS[2][0]-22,ty:PLATS[2][1]+14,o:0});
+  const t4=narr(c,t3,'Each side has two Cube Base platforms, beside its goalpost and 5 centimetres from the frame. The Manual robot places the yellow cube on one of them to score.');
+  PLATS.forEach((p,i)=>c.vis('pz'+i,t3,t4));c.vis('lPlR',t3,t4);c.vis('lPlB',t3,t4);
+  [F1,F2].forEach((f,i)=>{c.add('fz'+i,'shape',{x:f[0],y:f[1],w:60,h:56,shape:'rect',fill:'rgba(255,255,255,.16)',stroke:'#fff',sw:3,dash:'8 6',o:0,pulse:true});});
+  lbl(c,'lFl','Reverse Flag 1 (slot 5)',540,720,{tone:'dark',tx:F1[0]+20,ty:F1[1],o:0});
+  lbl(c,'lFl2','Reverse Flag 2 (slot 9)',540,900,{tone:'dark',tx:F2[0]+20,ty:F2[1],o:0});
+  const t5=narr(c,t4,'The two Reverse Flags sit in the central area, in slots 5 and 9. They start pointing at opposite sides. A thrown ball turns a flag toward the thrower, and only a tip pointing at your own side scores.');
+  c.vis('fz0',t4,t5);c.vis('fz1',t4,t5);c.vis('lFl',t4,t5);c.vis('lFl2',t4,t5);
+  c.dur=t5+.8;return c;
 }
 function mkComponents(){
   const c=new Clip({view:V_FULL});
